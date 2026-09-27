@@ -7,5 +7,6 @@ Course projects from FastAPI + SQLModel practice.
 | Folder | What it is |
 |---|---|
 | [rangmanch](./rangmanch) | Theatre reviews API — SQLite, SQLModel, lifespan, dependency injection, CRUD |
+| [dabbewala](./dabbewala) | Mumbai tiffin order tracker — Enum statuses, PATCH, routers, daily aggregation |
 
-Rangmanch notes (setup, endpoints, concepts) live in [`rangmanch/README.md`](./rangmanch/README.md).
+Notes for each project live in that folder's `README.md`.

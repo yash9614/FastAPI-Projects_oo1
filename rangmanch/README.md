@@ -4,6 +4,33 @@ Theatre reviews API for a Pune-based company. Audiences rate and review plays. T
 
 Built with **FastAPI**, **SQLModel**, and **SQLite**.
 
+## Project diagram
+
+```mermaid
+flowchart LR
+    Client["Client\n(Theatre App)"] --> FastAPI["FastAPI Server"]
+
+    FastAPI -->|"POST /review/"| Create["Create Review"]
+    FastAPI -->|"GET /review/"| List["List Reviews\n(Paginated)"]
+    FastAPI -->|"PATCH /review/id"| Update["Update Review"]
+    FastAPI -->|"DELETE /review/id"| Delete["Delete Review"]
+
+    Create --> Session["SQLModel Session"]
+    List --> Session
+    Update --> Session
+    Delete --> Session
+
+    Session --> DB[("SQLite\nrangmanch.db")]
+```
+
+Also: `GET /review/{id}` and `GET /review/average/{play_name}`.
+
+- SQLModel for database models (SQLAlchemy + Pydantic)
+- SQLite as a zero-config database
+- FastAPI lifespan for startup / shutdown
+- Session dependency injection
+- Full CRUD operations
+
 ## Run
 
 ```bash

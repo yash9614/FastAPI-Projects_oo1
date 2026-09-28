@@ -10,6 +10,7 @@ Course projects from a FastAPI backends track — REST APIs first, then database
 | [pincode-lookup](./pincode-lookup) | Checkout auto-fill: PIN → city + state, plus bulk POST | in-memory dict |
 | [rangmanch](./rangmanch) | Theatre reviews API — SQLite, SQLModel, lifespan, DI, CRUD | SQLite |
 | [dabbewala](./dabbewala) | Mumbai tiffin order tracker — Enum statuses, PATCH, routers, daily stats | SQLite |
+| [kitaab-exchange](./kitaab-exchange) | DU used-textbook exchange — header auth, User→Books, search listings | SQLite |
 
 Notes, diagrams, and concept tables live in each folder's `README.md`.
 
@@ -21,6 +22,7 @@ Notes, diagrams, and concept tables live in each folder's `README.md`.
 | **Pincode lookup** | `field_validator`, custom exceptions + `add_exception_handler`, POST body vs path |
 | **Rangmanch** | Lifespan, SQLModel, `Depends` session, real CRUD |
 | **Dabbewala** | Enum statuses, extra routers, daily aggregation |
+| **Kitaab Exchange** | `Header` dependency, API key on writes, one-to-many SQLModel, query search |
 
 ---
 
@@ -117,12 +119,40 @@ flowchart TB
 
 ---
 
+## Kitaab Exchange — project diagram
+
+Delhi University students buy and sell used textbooks. Writes need `X-API-Key`. Reads are public.
+
+```mermaid
+flowchart LR
+    Client["Client<br/>(Student App)"] --> Check{"X-API-Key"}
+    Check -->|Valid| API["FastAPI Server"]
+    Check -->|Invalid| E401["401 Invalid API Key"]
+    API --> Users["Users Router"]
+    API --> Books["Books Router"]
+    Users --> DB[("SQLite kitaab.db")]
+    Books --> DB
+```
+
+```mermaid
+flowchart TB
+    subgraph learn5 ["Kitaab Exchange — skills"]
+        A5["SQLModel one-to-many — User has many Books"]
+        B5["APIRouter — users and books in separate files"]
+        C5["Header dependency — protect writes with X-API-Key"]
+        D5["Query parameters — search listings by title or author"]
+    end
+```
+
+---
+
 ## REST ideas that show up across the repo
 
-| Idea | Chai Point | Pincode | Rangmanch / Dabbewala |
-|---|---|---|---|
-| Resource URL | `/menu`, `/menu/{id}` | `/pincode/{code}` | `/review/{id}` |
-| Query filter | `?category=chai` | — | `?play_name=&skip=&limit=` |
-| Request body | — | `POST /pincode/bulk` | `POST /review/`, `PATCH` |
-| 4xx not 500 | `HTTPException` | custom handlers | `HTTPException` |
-| Typed JSON | Pydantic models | Pydantic + validators | SQLModel schemas |
+| Idea | Chai Point | Pincode | Rangmanch / Dabbewala | Kitaab Exchange |
+|---|---|---|---|---|
+| Resource URL | `/menu`, `/menu/{id}` | `/pincode/{code}` | `/review/{id}` | `/users/`, `/books/{id}` |
+| Query filter | `?category=chai` | — | `?play_name=&skip=&limit=` | `?title=` `?author=` |
+| Request body | — | `POST /pincode/bulk` | `POST /review/`, `PATCH` | `POST /users/`, `POST /books/` |
+| Auth | — | — | — | `X-API-Key` on writes |
+| 4xx not 500 | `HTTPException` | custom handlers | `HTTPException` | `HTTPException` 401/400/404 |
+| Typed JSON | Pydantic models | Pydantic + validators | SQLModel schemas | SQLModel + Relationship |

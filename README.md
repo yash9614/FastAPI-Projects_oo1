@@ -1,6 +1,6 @@
 # FastAPI Projects
 
-Course projects from a FastAPI backends track — REST APIs first, then databases.
+Course projects from a FastAPI backends track — REST APIs first, then databases, then RAG.
 
 ## Projects
 
@@ -11,6 +11,7 @@ Course projects from a FastAPI backends track — REST APIs first, then database
 | [rangmanch](./rangmanch) | Theatre reviews API — SQLite, SQLModel, lifespan, DI, CRUD | SQLite |
 | [dabbewala](./dabbewala) | Mumbai tiffin order tracker — Enum statuses, PATCH, routers, daily stats | SQLite |
 | [kitaab-exchange](./kitaab-exchange) | DU used-textbook exchange — header auth, User→Books, search listings | SQLite |
+| [rag](./rag) | Ask a PDF questions — chunk, embed, Qdrant, then generate | Qdrant + OpenAI |
 
 Notes, diagrams, and concept tables live in each folder's `README.md`.
 
@@ -23,6 +24,7 @@ Notes, diagrams, and concept tables live in each folder's `README.md`.
 | **Rangmanch** | Lifespan, SQLModel, `Depends` session, real CRUD |
 | **Dabbewala** | Enum statuses, extra routers, daily aggregation |
 | **Kitaab Exchange** | `Header` dependency, API key on writes, one-to-many SQLModel, query search |
+| **RAG intro** | PDF chunks, embeddings, Qdrant, `POST /index/` + `POST /query/` |
 
 ---
 
@@ -42,13 +44,30 @@ flowchart LR
     API -->|"GET /menu/{id}"| One["Single Item"]
 ```
 
+---
+
+## RAG intro — project diagram
+
+Upload a PDF. Chunk it. Embed it. Ask questions. The chat model only sees the retrieved pages.
+
+```mermaid
+flowchart LR
+    Upload["POST /index/"] --> Qdrant[("Qdrant :6333")]
+    CLI["index.py"] --> Qdrant
+    Client["POST /query/"] --> Search["similarity_search"]
+    Search --> Qdrant
+    Qdrant --> LLM["chat model"]
+    LLM --> JSON["answer + sources"]
+```
+
 ```mermaid
 flowchart TB
-    subgraph learn1 ["Chai Point — dotted skills box"]
-        A1["Creating a FastAPI app and running it with uvicorn"]
-        B1["Path parameters and query parameters"]
-        C1["Pydantic response models for consistent API output"]
-        D1["Raising HTTPException for error handling"]
+    subgraph learn6 ["RAG intro — skills"]
+        A6["PyPDFLoader + overlapping chunks"]
+        B6["OpenAI embeddings vs chat models"]
+        C6["Qdrant vector store"]
+        D6["UploadFile multipart POST /index/"]
+        E6["Retrieve-then-generate on POST /query/"]
     end
 ```
 
@@ -65,17 +84,6 @@ flowchart TB
     Val -->|Valid| DB["Pincode Database"]
     DB -->|Found| OK["City + State Response"]
     DB -->|Not Found| E404["404 Not Found"]
-```
-
-```mermaid
-flowchart TB
-    subgraph learn2 ["Pincode — dotted skills box"]
-        A2["Pydantic field_validator for input validation"]
-        B2["Custom exception classes and exception handlers"]
-        C2["POST requests with JSON body"]
-        D2["Difference between path parameters and request bodies"]
-        E2["Clean error response patterns"]
-    end
 ```
 
 Handlers are registered with `app.add_exception_handler(ErrorClass, handler)`. Bulk codes arrive in the **POST request body**, not the URL.
@@ -105,18 +113,6 @@ flowchart LR
 
 Also used, not drawn above: `GET /review/{id}` and `GET /review/average/{play_name}`.
 
-```mermaid
-flowchart TB
-    subgraph stack ["Stack"]
-        A["SQLModel — models that are both tables and Pydantic schemas"]
-        B["SQLite — zero-config file database"]
-        C["FastAPI lifespan — create tables on startup"]
-        D["Depends + yield — one Session per request"]
-        E["APIRouter — /review routes in their own module"]
-        F["Full CRUD + average rating"]
-    end
-```
-
 ---
 
 ## Kitaab Exchange — project diagram
@@ -134,25 +130,15 @@ flowchart LR
     Books --> DB
 ```
 
-```mermaid
-flowchart TB
-    subgraph learn5 ["Kitaab Exchange — skills"]
-        A5["SQLModel one-to-many — User has many Books"]
-        B5["APIRouter — users and books in separate files"]
-        C5["Header dependency — protect writes with X-API-Key"]
-        D5["Query parameters — search listings by title or author"]
-    end
-```
-
 ---
 
 ## REST ideas that show up across the repo
 
-| Idea | Chai Point | Pincode | Rangmanch / Dabbewala | Kitaab Exchange |
-|---|---|---|---|---|
-| Resource URL | `/menu`, `/menu/{id}` | `/pincode/{code}` | `/review/{id}` | `/users/`, `/books/{id}` |
-| Query filter | `?category=chai` | — | `?play_name=&skip=&limit=` | `?title=` `?author=` |
-| Request body | — | `POST /pincode/bulk` | `POST /review/`, `PATCH` | `POST /users/`, `POST /books/` |
-| Auth | — | — | — | `X-API-Key` on writes |
-| 4xx not 500 | `HTTPException` | custom handlers | `HTTPException` | `HTTPException` 401/400/404 |
-| Typed JSON | Pydantic models | Pydantic + validators | SQLModel schemas | SQLModel + Relationship |
+| Idea | Chai Point | Pincode | Rangmanch / Dabbewala | Kitaab Exchange | RAG |
+|---|---|---|---|---|---|
+| Resource URL | `/menu`, `/menu/{id}` | `/pincode/{code}` | `/review/{id}` | `/users/`, `/books/{id}` | `/index/`, `/query/` |
+| Query filter | `?category=chai` | — | `?play_name=&skip=&limit=` | `?title=` `?author=` | — |
+| Request body | — | `POST /pincode/bulk` | `POST /review/`, `PATCH` | `POST /users/`, `POST /books/` | JSON question + multipart PDF |
+| Auth | — | — | — | `X-API-Key` on writes | OpenAI key in `.env` |
+| 4xx not 500 | `HTTPException` | custom handlers | `HTTPException` | `HTTPException` 401/400/404 | 400 / 500 / 503 |
+| Typed JSON | Pydantic models | Pydantic + validators | SQLModel schemas | SQLModel + Relationship | Pydantic `QueryRequest` |

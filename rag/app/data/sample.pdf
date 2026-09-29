@@ -1,0 +1,125 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 5 0 R 6 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 7 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 8 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 9 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+7 0 obj
+<< /Length 778 >>
+stream
+BT
+/F1 12 Tf
+50 750 Td
+16 TL
+(Introduction to Retrieval-Augmented Generation) Tj
+T*
+(These notes are the sample document for the RAG intro project.) Tj
+T*
+(The indexer splits this PDF into overlapping chunks, embeds each chunk) Tj
+T*
+(with OpenAI text-embedding-3-large, and stores the vectors in Qdrant.) Tj
+T*
+(The FastAPI query route retrieves the nearest chunks and asks an LLM) Tj
+T*
+(to answer only from that context, citing page numbers.) Tj
+T*
+(What is RAG?) Tj
+T*
+(Retrieval-Augmented Generation combines a search step with a language) Tj
+T*
+(model. Instead of asking the model to recall facts from training data,) Tj
+T*
+(the application first finds relevant passages from a private knowledge) Tj
+T*
+(base and then passes those passages to the model as context.) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 597 >>
+stream
+BT
+/F1 12 Tf
+50 750 Td
+16 TL
+(The stack used in this project) Tj
+T*
+(Qdrant is the vector database. Docker Compose starts qdrant/qdrant) Tj
+T*
+(and publishes port 6333. This project uses collection sample_collection.) Tj
+T*
+(OpenAI embeddings and chat) Tj
+T*
+(Indexing uses text-embedding-3-large. Query answering uses a chat model) Tj
+T*
+(set by OPENAI_CHAT_MODEL. Both read OPENAI_API_KEY from the environment.) Tj
+T*
+(FastAPI query route) Tj
+T*
+(POST /query/ accepts a question. The handler runs similarity_search) Tj
+T*
+(against Qdrant and sends a system prompt plus the user question.) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Length 573 >>
+stream
+BT
+/F1 12 Tf
+50 750 Td
+16 TL
+(How to run the demo) Tj
+T*
+(Start Qdrant with docker compose up -d.) Tj
+T*
+(Copy .env.example to .env and put in a valid OpenAI API key.) Tj
+T*
+(POST /index/ a PDF or run python index.py.) Tj
+T*
+(Start the API with python -m uvicorn main:app --reload.) Tj
+T*
+(Facts you can ask about) Tj
+T*
+(Qdrant listens on port 6333.) Tj
+T*
+(The embedding model is text-embedding-3-large.) Tj
+T*
+(Chunks are 1000 characters with 400 characters of overlap.) Tj
+T*
+(The collection name is sample_collection.) Tj
+T*
+(The query router prefix is /query.) Tj
+ET
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000323 00000 n 
+0000000449 00000 n 
+0000000575 00000 n 
+0000001403 00000 n 
+0000002050 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+2673
+%%EOF

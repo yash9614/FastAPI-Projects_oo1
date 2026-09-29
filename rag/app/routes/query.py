@@ -45,15 +45,12 @@ async def query(body: QueryRequest):
         ]
     )
 
-    system_prompt = f"""
-You are a helpful assistant that answers questions based on the provided context.
-If the context does not contain the answer, respond with \"I don't know.\"
-
-Also include the page number of the context in your answer if applicable.
-
-Context:
-{context}
-    \"\"\".strip()
+    system_prompt = (
+        "You are a helpful assistant that answers questions based on the provided context.\n"
+        "If the context does not contain the answer, respond with \"I don't know.\"\n\n"
+        "Also include the page number of the context in your answer if applicable.\n\n"
+        f"Context:\n{context}"
+    )
 
     response = OpenAI(api_key=openai_api_key()).chat.completions.create(
         model=CHAT_MODEL,

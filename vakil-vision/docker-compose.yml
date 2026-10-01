@@ -1,0 +1,11 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: vakil_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - vakil_mongo_data:/data/db
+
+volumes:
+  vakil_mongo_data:
